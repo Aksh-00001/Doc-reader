@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: doc-reader
+    env: node
+    plan: free
+    buildCommand: npm run render-build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22
+      - key: MAX_FILE_SIZE_MB
+        value: 10

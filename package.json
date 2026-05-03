@@ -1,0 +1,15 @@
+{
+  "name": "doc-reader-deploy",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render-build": "npm --prefix frontend ci --include=dev && npm --prefix frontend run build && npm --prefix backend ci --omit=dev",
+    "start": "NODE_ENV=production npm --prefix backend start",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
