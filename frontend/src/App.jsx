@@ -31,6 +31,7 @@ export default function App() {
   const [dragging, setDragging] = useState(false);
   const [installPrompt, setInstallPrompt] = useState(null);
   const [online, setOnline] = useState(typeof navigator === "undefined" ? true : navigator.onLine);
+  const [fileUrl, setFileUrl] = useState(null);
   const inputRef = useRef(null);
 
   const isLoading = status === "loading";
@@ -64,6 +65,18 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if ("launchQueue" in window) {
+      window.launchQueue.setConsumer(async (launchParams) => {
+        if (launchParams.files && launchParams.files.length > 0) {
+          const fileHandle = launchParams.files[0];
+          const file = await fileHandle.getFile();
+          handleFile(file);
+        }
+      });
+    }
+  }, []);
+
   async function handleFile(file) {
     if (!file) return;
 
@@ -80,6 +93,11 @@ export default function App() {
 
     try {
       const payload = await uploadFile(file);
+      
+      if (fileUrl) URL.revokeObjectURL(fileUrl);
+      const url = URL.createObjectURL(file);
+      setFileUrl(url);
+      
       setResult(payload);
       setStatus("ready");
     } catch (err) {
@@ -116,7 +134,8 @@ export default function App() {
     URL.revokeObjectURL(url);
   }
 
-  function resetReader() {
+    if (fileUrl) URL.revokeObjectURL(fileUrl);
+    setFileUrl(null);
     setResult(null);
     setFileName("");
     setStatus("idle");
@@ -260,7 +279,7 @@ export default function App() {
         </div>
 
         <div className="reader-body">
-          {isLoading ? <LoadingState /> : <Preview result={result} query={query} />}
+          {isLoading ? <LoadingState /> : <Preview result={result} query={query} fileUrl={fileUrl} />}
         </div>
       </section>
     </main>
@@ -290,12 +309,23 @@ function LoadingState() {
   );
 }
 
-function Preview({ result, query }) {
+function Preview({ result, query, fileUrl }) {
   if (!result) {
     return (
       <div className="empty-state">
         <FileText size={34} aria-hidden="true" />
         <p>Choose a document to start reading.</p>
+      </div>
+    );
+  }
+
+  // Use native high-fidelity viewer for PDF and Images
+  if (result.mimeType === "application/pdf" || result.mimeType.startsWith("image/")) {
+    return (
+      <div className="native-viewer">
+        <object data={fileUrl} type={result.mimeType} width="100%" height="100%">
+          <embed src={fileUrl} type={result.mimeType} />
+        </object>
       </div>
     );
   }
