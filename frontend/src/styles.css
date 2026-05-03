@@ -395,6 +395,29 @@ h2 {
   border: none;
 }
 
+.word-viewer-container {
+  padding: 24px;
+  background: #ffffff;
+  min-height: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.docx-viewer {
+  background: #ffffff !important;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  padding: 40px !important;
+  max-width: 800px !important;
+  width: 100% !important;
+}
+
+.viewer-error {
+  padding: 40px;
+  text-align: center;
+  color: #b4233a;
+  font-weight: 750;
+}
+
 .text-preview {
   padding: 24px;
   margin: 0;

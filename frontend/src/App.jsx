@@ -17,6 +17,7 @@ import {
   X
 } from "lucide-react";
 import { uploadFile } from "./api.js";
+import { renderAsync } from "docx-preview";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ACCEPTED_TYPES = ".pdf,.docx,.txt,.csv,.xls,.xlsx,.png,.jpg,.jpeg";
@@ -32,6 +33,7 @@ export default function App() {
   const [installPrompt, setInstallPrompt] = useState(null);
   const [online, setOnline] = useState(typeof navigator === "undefined" ? true : navigator.onLine);
   const [fileUrl, setFileUrl] = useState(null);
+  const [currentFile, setCurrentFile] = useState(null);
   const inputRef = useRef(null);
 
   const isLoading = status === "loading";
@@ -97,6 +99,7 @@ export default function App() {
       if (fileUrl) URL.revokeObjectURL(fileUrl);
       const url = URL.createObjectURL(file);
       setFileUrl(url);
+      setCurrentFile(file);
       
       setResult(payload);
       setStatus("ready");
@@ -134,8 +137,10 @@ export default function App() {
     URL.revokeObjectURL(url);
   }
 
+  function resetReader() {
     if (fileUrl) URL.revokeObjectURL(fileUrl);
     setFileUrl(null);
+    setCurrentFile(null);
     setResult(null);
     setFileName("");
     setStatus("idle");
@@ -279,7 +284,7 @@ export default function App() {
         </div>
 
         <div className="reader-body">
-          {isLoading ? <LoadingState /> : <Preview result={result} query={query} fileUrl={fileUrl} />}
+          {isLoading ? <LoadingState /> : <Preview result={result} query={query} fileUrl={fileUrl} file={currentFile} />}
         </div>
       </section>
     </main>
@@ -309,7 +314,7 @@ function LoadingState() {
   );
 }
 
-function Preview({ result, query, fileUrl }) {
+function Preview({ result, query, fileUrl, file }) {
   if (!result) {
     return (
       <div className="empty-state">
@@ -319,7 +324,7 @@ function Preview({ result, query, fileUrl }) {
     );
   }
 
-  // Use native high-fidelity viewer for PDF and Images
+  // Original high-fidelity viewer for PDF and Images
   if (result.mimeType === "application/pdf" || result.mimeType.startsWith("image/")) {
     return (
       <div className="native-viewer">
@@ -330,11 +335,40 @@ function Preview({ result, query, fileUrl }) {
     );
   }
 
+  // Original high-fidelity viewer for Word (.docx)
+  if (result.mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+    return <WordPreview file={file} />;
+  }
+
   if (result.kind === "table") {
     return <TablePreview table={result.table} query={query} />;
   }
 
   return <pre className="text-preview">{renderHighlightedText(result.text, query)}</pre>;
+}
+
+function WordPreview({ file }) {
+  const containerRef = useRef(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (file && containerRef.current) {
+      renderAsync(file, containerRef.current, undefined, {
+        className: "docx-viewer",
+        inWrapper: false,
+        ignoreLastRenderedPageBreak: false
+      }).catch((err) => {
+        console.error("Word preview error:", err);
+        setError("Failed to render Word document layout.");
+      });
+    }
+  }, [file]);
+
+  if (error) {
+    return <div className="viewer-error">{error}</div>;
+  }
+
+  return <div ref={containerRef} className="word-viewer-container" />;
 }
 
 function TablePreview({ table, query }) {
