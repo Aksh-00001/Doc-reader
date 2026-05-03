@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "render-build": "npm --prefix frontend ci --include=dev && npm --prefix frontend run build && npm --prefix backend ci --omit=dev",
+    "render-build": "npm --prefix frontend ci && npm --prefix frontend run build && npm --prefix backend ci --omit=dev",
     "start": "NODE_ENV=production npm --prefix backend start",
     "dev:frontend": "npm --prefix frontend run dev",
     "dev:backend": "npm --prefix backend run dev"
