@@ -11,7 +11,9 @@ import documentsRouter from "./routes/documents.js";
 await mkdir(config.uploadDir, { recursive: true });
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const frontendDist = path.resolve(__dirname, "../../frontend/dist");
+const frontendDist = path.resolve(__dirname, "..", "..", "frontend", "dist");
+
+console.log(`[Production] Serving frontend from: ${frontendDist}`);
 const app = express();
 
 app.set("trust proxy", 1);
