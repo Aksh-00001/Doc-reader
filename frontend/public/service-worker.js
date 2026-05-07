@@ -16,6 +16,26 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  if (event.request.method === "POST" && new URL(event.request.url).pathname === "/") {
+    event.respondWith((async () => {
+      try {
+        const formData = await event.request.formData();
+        const file = formData.get("file");
+        if (file) {
+          const cache = await caches.open("shared-files");
+          const headers = new Headers();
+          headers.set("X-File-Name", encodeURIComponent(file.name));
+          headers.set("Content-Type", file.type);
+          await cache.put("/shared-file", new Response(file, { headers }));
+        }
+      } catch (err) {
+        console.error("Share error:", err);
+      }
+      return Response.redirect("/?shared=true", 303);
+    })());
+    return;
+  }
+
   if (event.request.method !== "GET") return;
 
   if (event.request.mode === "navigate") {

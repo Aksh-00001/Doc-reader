@@ -42,5 +42,21 @@
         "image/jpeg": [".jpg", ".jpeg"]
       }
     }
-  ]
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "file",
+          "accept": [".pdf", ".docx", ".txt", ".csv", ".xlsx", ".xls", ".png", ".jpg", ".jpeg"]
+        }
+      ]
+    }
+  }
 }

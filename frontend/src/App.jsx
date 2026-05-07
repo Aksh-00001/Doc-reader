@@ -100,6 +100,30 @@ export default function App() {
   }, [query, currentMatchIndex, result]);
 
   useEffect(() => {
+    async function checkSharedFile() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("shared") === "true") {
+        try {
+          const cache = await caches.open("shared-files");
+          const response = await cache.match("/shared-file");
+          if (response) {
+            const blob = await response.blob();
+            const fileName = decodeURIComponent(response.headers.get("X-File-Name") || "shared-document");
+            const file = new File([blob], fileName, { type: blob.type });
+            handleFile(file);
+            await cache.delete("/shared-file");
+            // Remove the ?shared=true from URL without reloading
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        } catch (err) {
+          console.error("Error loading shared file:", err);
+        }
+      }
+    }
+    checkSharedFile();
+  }, []);
+
+  useEffect(() => {
     if ("launchQueue" in window) {
       window.launchQueue.setConsumer(async (launchParams) => {
         if (launchParams.files && launchParams.files.length > 0) {
