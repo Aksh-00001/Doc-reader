@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertCircle,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   Clipboard,
   Download,
   FileText,
@@ -40,6 +42,7 @@ export default function App() {
   const [currentFile, setCurrentFile] = useState(null);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [zoom, setZoom] = useState(1);
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
   const inputRef = useRef(null);
 
   const isLoading = status === "loading";
@@ -72,6 +75,29 @@ export default function App() {
       window.removeEventListener("offline", handleOffline);
     };
   }, []);
+
+  useEffect(() => {
+    setCurrentMatchIndex(matches > 0 ? 0 : -1);
+  }, [query, matches]);
+
+  useEffect(() => {
+    if (!query || currentMatchIndex === -1) return;
+    
+    const timer = setTimeout(() => {
+      const marks = document.querySelectorAll('mark.search-match');
+      document.querySelectorAll('mark.search-match.active').forEach(m => m.classList.remove('active'));
+      
+      if (marks.length > 0 && currentMatchIndex < marks.length) {
+        const activeMark = marks[currentMatchIndex];
+        if (activeMark) {
+          activeMark.classList.add('active');
+          activeMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [query, currentMatchIndex, result]);
 
   useEffect(() => {
     if ("launchQueue" in window) {
@@ -305,14 +331,46 @@ export default function App() {
 
           <div className="toolbar-actions">
             <label className="search-box">
-              <Search size={17} aria-hidden="true" />
+              <Search size={17} aria-hidden="true" style={{ flexShrink: 0 }} />
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && matches > 0) {
+                    e.preventDefault();
+                    setCurrentMatchIndex((prev) => (prev + 1) % matches);
+                  }
+                }}
                 placeholder="Search"
                 disabled={!hasResult}
               />
-              {query && <span>{matches}</span>}
+              {query && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '2px', borderLeft: '1px solid #d8dee8', paddingLeft: '8px' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, marginRight: '4px', whiteSpace: 'nowrap' }}>
+                    {matches > 0 ? currentMatchIndex + 1 : 0} / {matches}
+                  </span>
+                  <button 
+                    className="icon-button subtle" 
+                    type="button" 
+                    style={{ width: '24px', minHeight: '24px', padding: 0 }} 
+                    disabled={matches === 0} 
+                    onClick={() => setCurrentMatchIndex((prev) => (prev - 1 + matches) % matches)}
+                    aria-label="Previous match"
+                  >
+                    <ChevronUp size={16} />
+                  </button>
+                  <button 
+                    className="icon-button subtle" 
+                    type="button" 
+                    style={{ width: '24px', minHeight: '24px', padding: 0 }} 
+                    disabled={matches === 0} 
+                    onClick={() => setCurrentMatchIndex((prev) => (prev + 1) % matches)}
+                    aria-label="Next match"
+                  >
+                    <ChevronDown size={16} />
+                  </button>
+                </div>
+              )}
             </label>
 
             <div className="zoom-controls" style={{ display: "flex", gap: "2px", alignItems: "center", marginRight: "8px" }}>
@@ -474,7 +532,7 @@ function renderHighlightedText(text, query) {
 
   const parts = text.split(new RegExp(`(${escapeRegExp(query.trim())})`, "gi"));
   return parts.map((part, index) =>
-    part.toLowerCase() === query.trim().toLowerCase() ? <mark key={`${part}-${index}`}>{part}</mark> : part
+    part.toLowerCase() === query.trim().toLowerCase() ? <mark key={`${part}-${index}`} className="search-match">{part}</mark> : part
   );
 }
 

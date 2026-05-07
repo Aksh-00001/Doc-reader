@@ -521,10 +521,17 @@ h2 {
   word-break: break-word;
 }
 
-mark {
-  border-radius: 5px;
+mark, .search-match {
+  border-radius: 4px;
   color: #111827;
   background: #fde68a;
+  box-shadow: 0 0 0 1px #f5d0fe;
+}
+
+.search-match.active {
+  background: #f97316;
+  color: #ffffff;
+  box-shadow: 0 0 0 2px #fdba74;
 }
 
 .empty-state,
