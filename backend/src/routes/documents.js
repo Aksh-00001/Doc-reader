@@ -19,7 +19,7 @@ const upload = multer({
   storage,
   limits: { fileSize: config.maxFileSizeMb * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
-    if (supportedMimeTypes.has(file.mimetype) || /\.(pdf|docx|txt|csv|xlsx?|png|jpe?g)$/i.test(file.originalname)) {
+    if (supportedMimeTypes.has(file.mimetype) || /\.(pdf|docx|txt|csv|xlsx?|xlsm|png|jpe?g)$/i.test(file.originalname)) {
       cb(null, true);
       return;
     }
