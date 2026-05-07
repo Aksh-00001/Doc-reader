@@ -625,11 +625,11 @@ td.row-number {
 
 @media (max-width: 760px) {
   .docx-wrapper {
-    padding: 8px !important;
+    padding: 4px !important;
   }
   .docx-wrapper > section.docx {
     width: 100% !important;
-    padding: 16px !important;
+    padding: 10px !important;
     min-height: auto !important;
   }
   .docx-wrapper img {
@@ -643,6 +643,54 @@ td.row-number {
   th, td {
     padding: 3px 6px;
     min-width: 40px;
+  }
+
+  /* Compact Toolbar for Mobile */
+  .reader-toolbar {
+    padding: 6px;
+    gap: 6px;
+  }
+  .toolbar-title p {
+    display: none;
+  }
+  .toolbar-title h2 {
+    font-size: 0.9rem;
+  }
+  .toolbar-title svg {
+    width: 16px;
+    height: 16px;
+  }
+  .toolbar-actions {
+    gap: 4px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+  .toolbar-actions::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-on-mobile {
+    display: none;
+  }
+  .tool-button, .search-box, .icon-button, .icon-button.subtle {
+    min-height: 32px;
+    height: 32px;
+  }
+  .tool-button {
+    padding: 0 8px;
+    border-radius: 6px;
+  }
+  .search-box {
+    flex: 1 1 140px;
+    padding: 0 6px;
+    border-radius: 6px;
+  }
+  .zoom-controls {
+    margin-right: 4px !important;
+  }
+  .zoom-controls span {
+    min-width: 32px !important;
+    font-size: 0.7rem !important;
   }
 }
 

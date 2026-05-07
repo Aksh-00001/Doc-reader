@@ -385,12 +385,12 @@ export default function App() {
 
             <button className="tool-button" type="button" onClick={handleCopy} disabled={!hasResult}>
               <Clipboard size={17} aria-hidden="true" />
-              Copy
+              <span className="hide-on-mobile">Copy</span>
             </button>
             <div className="export-container" style={{ position: "relative", display: "flex" }}>
               <button className="tool-button" type="button" onClick={() => setShowExportMenu(!showExportMenu)} disabled={!hasResult}>
                 <Download size={17} aria-hidden="true" />
-                Export
+                <span className="hide-on-mobile">Export</span>
               </button>
               {showExportMenu && (
                 <div className="export-menu">
