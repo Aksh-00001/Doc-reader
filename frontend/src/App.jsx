@@ -14,7 +14,9 @@ import {
   UploadCloud,
   Wifi,
   WifiOff,
-  X
+  X,
+  ZoomIn,
+  ZoomOut
 } from "lucide-react";
 import { uploadFile } from "./api.js";
 import { renderAsync } from "docx-preview";
@@ -37,6 +39,7 @@ export default function App() {
   const [fileUrl, setFileUrl] = useState(null);
   const [currentFile, setCurrentFile] = useState(null);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [zoom, setZoom] = useState(1);
   const inputRef = useRef(null);
 
   const isLoading = status === "loading";
@@ -183,6 +186,7 @@ export default function App() {
     setStatus("idle");
     setError("");
     setQuery("");
+    setZoom(1);
   }
 
   function handleDrop(event) {
@@ -311,6 +315,16 @@ export default function App() {
               {query && <span>{matches}</span>}
             </label>
 
+            <div className="zoom-controls" style={{ display: "flex", gap: "2px", alignItems: "center", marginRight: "8px" }}>
+              <button className="icon-button subtle" type="button" onClick={() => setZoom(z => Math.max(0.25, z - 0.25))} aria-label="Zoom out" disabled={zoom <= 0.25}>
+                <ZoomOut size={17} aria-hidden="true" />
+              </button>
+              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#64748b", minWidth: "40px", textAlign: "center" }}>{Math.round(zoom * 100)}%</span>
+              <button className="icon-button subtle" type="button" onClick={() => setZoom(z => Math.min(3, z + 0.25))} aria-label="Zoom in" disabled={zoom >= 3}>
+                <ZoomIn size={17} aria-hidden="true" />
+              </button>
+            </div>
+
             <button className="tool-button" type="button" onClick={handleCopy} disabled={!hasResult}>
               <Clipboard size={17} aria-hidden="true" />
               Copy
@@ -335,7 +349,9 @@ export default function App() {
         </div>
 
         <div className="reader-body">
-          <Preview result={result} query={query} fileUrl={fileUrl} file={currentFile} />
+          <div style={{ zoom: zoom, transformOrigin: "top left" }}>
+            <Preview result={result} query={query} fileUrl={fileUrl} file={currentFile} />
+          </div>
         </div>
       </section>
       )}
