@@ -252,7 +252,7 @@ export default function App() {
           <div className="toolbar-title">
             {result?.kind === "table" ? <Table2 size={19} aria-hidden="true" /> : <FileText size={19} aria-hidden="true" />}
             <div>
-              <h2>{result?.kind === "table" ? "Table preview" : "Text preview"}</h2>
+              <h2>{getDocumentTitle(result)}</h2>
               {result?.stats?.truncated && <p>Showing the first 1,000 rows</p>}
             </div>
           </div>
@@ -376,11 +376,20 @@ function TablePreview({ table, query }) {
   const columnCount = Math.max(...rows.map((row) => row.length));
 
   return (
-    <div className="table-wrap" role="region" aria-label={`${table.sheetName} table`}>
+    <div className="table-wrap excel-like" role="region" aria-label={`${table.sheetName} table`}>
       <table>
+        <thead>
+          <tr>
+            <th className="row-number-header"></th>
+            {Array.from({ length: columnCount }, (_, columnIndex) => (
+              <th key={columnIndex} className="col-header">{getColumnLetter(columnIndex)}</th>
+            ))}
+          </tr>
+        </thead>
         <tbody>
           {rows.map((row, rowIndex) => (
             <tr key={rowIndex}>
+              <td className="row-number">{rowIndex + 1}</td>
               {Array.from({ length: columnCount }, (_, columnIndex) => (
                 <td key={columnIndex}>{renderHighlightedText(row[columnIndex] || "", query)}</td>
               ))}
@@ -446,4 +455,25 @@ function withoutExtension(name) {
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function getDocumentTitle(result) {
+  if (!result) return "Preview";
+  const name = (result.fileName || "").toLowerCase();
+  if (result.mimeType === "application/pdf" || name.endsWith(".pdf")) return "PDF Document";
+  if (result.mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || name.endsWith(".docx")) return "Word Document";
+  if (result.mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || result.mimeType === "application/vnd.ms-excel" || name.match(/\.xlsx?$/)) return "Excel Spreadsheet";
+  if (result.kind === "table") return "CSV Data";
+  if (result.mimeType?.startsWith("image/") || name.match(/\.(png|jpe?g)$/)) return "Image Document";
+  return "Text Document";
+}
+
+function getColumnLetter(colIndex) {
+  let letter = "";
+  let temp = colIndex;
+  while (temp >= 0) {
+    letter = String.fromCharCode(65 + (temp % 26)) + letter;
+    temp = Math.floor(temp / 26) - 1;
+  }
+  return letter;
 }

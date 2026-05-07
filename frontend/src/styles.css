@@ -396,19 +396,22 @@ h2 {
 }
 
 .word-viewer-container {
-  padding: 24px;
-  background: #ffffff;
+  padding: 40px 24px;
+  background: #f0f2f5;
   min-height: 100%;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
 }
 
 .docx-viewer {
   background: #ffffff !important;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  padding: 40px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  padding: 60px 48px !important;
   max-width: 800px !important;
   width: 100% !important;
+  min-height: 1056px;
+  margin-bottom: 40px;
 }
 
 .viewer-error {
@@ -458,53 +461,59 @@ mark {
   width: 100%;
   overflow: auto;
   flex: 1;
+  background: #f3f2f1;
 }
 
 table {
   width: max-content;
-  min-width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   background: #ffffff;
-  font-size: 0.86rem;
+  font-size: 0.85rem;
+  font-family: Calibri, "Segoe UI", sans-serif;
+  border-top: 1px solid #c8c6c4;
+  border-left: 1px solid #c8c6c4;
 }
 
-td {
-  padding: 9px 12px;
-  border-right: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
-  color: #223044;
-  vertical-align: top;
+th, td {
+  border-right: 1px solid #c8c6c4;
+  border-bottom: 1px solid #c8c6c4;
+  padding: 4px 8px;
   white-space: nowrap;
-  min-width: 100px;
+  min-width: 80px;
+  vertical-align: middle;
+  color: #000000;
 }
 
-tr:nth-child(even) {
-  background-color: #f9fafb;
-}
-
-tr:hover {
-  background-color: #f3f4f6;
-}
-
-tr:first-child td {
+th {
+  background-color: #f3f2f1;
+  color: #605e5c;
+  font-weight: normal;
+  text-align: center;
   position: sticky;
   top: 0;
   z-index: 10;
-  color: #172033;
-  background: #eef4ff;
-  font-weight: 850;
-  border-bottom: 2px solid #2563eb;
+  user-select: none;
 }
 
-td:first-child {
-  background-color: #f9fafb;
-  font-weight: 700;
+th.row-number-header {
+  min-width: 40px;
+  width: 40px;
+  left: 0;
+  z-index: 11;
+}
+
+td.row-number {
+  background-color: #f3f2f1;
+  color: #605e5c;
   text-align: center;
-  min-width: 45px;
-  width: 45px;
-  color: #64748b;
-  border-right: 2px solid #dde4ee;
+  position: sticky;
+  left: 0;
+  z-index: 9;
+  min-width: 40px;
+  width: 40px;
+  padding: 4px;
+  user-select: none;
 }
 
 .spin {
