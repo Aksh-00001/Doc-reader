@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import { uploadFile } from "./api.js";
 import { renderAsync } from "docx-preview";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ACCEPTED_TYPES = ".pdf,.docx,.txt,.csv,.xls,.xlsx,.xlsm,.png,.jpg,.jpeg";
@@ -34,6 +36,7 @@ export default function App() {
   const [online, setOnline] = useState(typeof navigator === "undefined" ? true : navigator.onLine);
   const [fileUrl, setFileUrl] = useState(null);
   const [currentFile, setCurrentFile] = useState(null);
+  const [showExportMenu, setShowExportMenu] = useState(false);
   const inputRef = useRef(null);
 
   const isLoading = status === "loading";
@@ -123,16 +126,50 @@ export default function App() {
     await navigator.clipboard.writeText(content);
   }
 
-  function handleDownload() {
+  function exportAs(format) {
+    setShowExportMenu(false);
     if (!result) return;
+
     const isTable = result.kind === "table";
-    const content = isTable ? tableToCsv(result.table.rows) : result.text;
-    const extension = isTable ? "csv" : "txt";
-    const blob = new Blob([content], { type: isTable ? "text/csv" : "text/plain" });
+    const name = withoutExtension(result.fileName);
+
+    if (format === "pdf") {
+      const doc = new jsPDF();
+      doc.text(name, 14, 15);
+      
+      if (isTable) {
+        autoTable(doc, {
+          head: [result.table.rows[0]],
+          body: result.table.rows.slice(1),
+          startY: 20,
+          theme: 'grid',
+          headStyles: { fillColor: [22, 163, 74] } // Green for Excel theme
+        });
+      } else {
+        const splitText = doc.splitTextToSize(result.text || "No text available.", 180);
+        let y = 25;
+        for (let i = 0; i < splitText.length; i++) {
+          if (y > 280) {
+            doc.addPage();
+            y = 20;
+          }
+          doc.text(splitText[i], 14, y);
+          y += 6;
+        }
+      }
+      doc.save(`${name}.pdf`);
+      return;
+    }
+
+    let content = isTable ? tableToCsv(result.table.rows) : result.text;
+    let mimeType = "text/plain";
+    if (format === "csv") mimeType = "text/csv";
+    
+    const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${withoutExtension(result.fileName)}.${extension}`;
+    link.download = `${name}.${format}`;
     link.click();
     URL.revokeObjectURL(url);
   }
@@ -155,7 +192,7 @@ export default function App() {
   }
 
   return (
-    <main className={`site-shell ${hasResult ? "reading-mode" : ""}`}>
+    <main className={`site-shell ${hasResult ? "reading-mode" : ""} ${getDocumentTheme(result)}`}>
       {!hasResult && (
         <>
           <header className="app-header">
@@ -278,10 +315,19 @@ export default function App() {
               <Clipboard size={17} aria-hidden="true" />
               Copy
             </button>
-            <button className="tool-button" type="button" onClick={handleDownload} disabled={!hasResult}>
-              <Download size={17} aria-hidden="true" />
-              Export
-            </button>
+            <div className="export-container" style={{ position: "relative", display: "flex" }}>
+              <button className="tool-button" type="button" onClick={() => setShowExportMenu(!showExportMenu)} disabled={!hasResult}>
+                <Download size={17} aria-hidden="true" />
+                Export
+              </button>
+              {showExportMenu && (
+                <div className="export-menu">
+                  {result?.kind === "table" && <button onClick={() => exportAs("csv")}>Export to CSV</button>}
+                  <button onClick={() => exportAs("txt")}>Export to TXT</button>
+                  <button onClick={() => exportAs("pdf")}>Export to PDF</button>
+                </div>
+              )}
+            </div>
             <button className="icon-button subtle" type="button" onClick={resetReader} aria-label="Close document">
               <X size={17} aria-hidden="true" />
             </button>
@@ -361,7 +407,7 @@ function WordPreview({ file }) {
     if (file && containerRef.current) {
       renderAsync(file, containerRef.current, undefined, {
         className: "docx-viewer",
-        inWrapper: false,
+        inWrapper: true,
         ignoreLastRenderedPageBreak: false
       }).catch((err) => {
         console.error("Word preview error:", err);
@@ -482,4 +528,14 @@ function getColumnLetter(colIndex) {
     temp = Math.floor(temp / 26) - 1;
   }
   return letter;
+}
+
+function getDocumentTheme(result) {
+  if (!result) return "default-theme";
+  const name = (result.fileName || "").toLowerCase();
+  if (result.mimeType === "application/pdf" || name.endsWith(".pdf")) return "pdf-theme";
+  if (result.mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || name.endsWith(".docx")) return "word-theme";
+  if (result.mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || result.mimeType === "application/vnd.ms-excel" || result.mimeType === "application/vnd.ms-excel.sheet.macroEnabled.12" || name.match(/\.xlsx?$|\.xlsm$/) || result.kind === "table") return "excel-theme";
+  if (result.mimeType?.startsWith("image/") || name.match(/\.(png|jpe?g)$/)) return "image-theme";
+  return "default-theme";
 }

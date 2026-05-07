@@ -1,10 +1,51 @@
 :root {
+  --theme-color: #2563eb;
+  --theme-bg: #eff6ff;
+  --theme-border: #bfdbfe;
+  --theme-header-bg: #2563eb;
+  --theme-header-color: #ffffff;
   color: #151a23;
   background: #f4f6f8;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+}
+
+.pdf-theme {
+  --theme-color: #dc2626;
+  --theme-bg: #fef2f2;
+  --theme-border: #fecaca;
+  --theme-header-bg: #b91c1c;
+  --theme-header-color: #ffffff;
+}
+.word-theme {
+  --theme-color: #2563eb;
+  --theme-bg: #eff6ff;
+  --theme-border: #bfdbfe;
+  --theme-header-bg: #1d4ed8;
+  --theme-header-color: #ffffff;
+}
+.excel-theme {
+  --theme-color: #16a34a;
+  --theme-bg: #f0fdf4;
+  --theme-border: #bbf7d0;
+  --theme-header-bg: #15803d; /* dark green */
+  --theme-header-color: #ffffff;
+}
+.image-theme {
+  --theme-color: #9333ea;
+  --theme-bg: #faf5ff;
+  --theme-border: #e9d5ff;
+  --theme-header-bg: #7e22ce;
+  --theme-header-color: #ffffff;
+}
+.default-theme {
+  --theme-color: #475569;
+  --theme-bg: #f1f5f9;
+  --theme-border: #e2e8f0;
+  --theme-header-bg: #334155;
+  --theme-header-color: #ffffff;
 }
 
 * {
@@ -180,8 +221,8 @@ h2 {
 }
 
 .upload-zone.dragging {
-  border-color: #2563eb;
-  background: #f6f9ff;
+  border-color: var(--theme-color);
+  background: var(--theme-bg);
 }
 
 .upload-art {
@@ -190,8 +231,8 @@ h2 {
   width: 54px;
   height: 54px;
   border-radius: 8px;
-  color: #2563eb;
-  background: #edf4ff;
+  color: var(--theme-color);
+  background: var(--theme-bg);
 }
 
 .upload-content {
@@ -270,8 +311,8 @@ h2 {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  color: #0f766e;
-  background: #e8f6f3;
+  color: var(--theme-color);
+  background: var(--theme-bg);
 }
 
 .meta-item span {
@@ -306,6 +347,7 @@ h2 {
 .reader-shell {
   margin-top: 12px;
   overflow: hidden;
+  border-top: 4px solid var(--theme-color);
 }
 
 .reading-mode .reader-shell {
@@ -331,7 +373,7 @@ h2 {
 }
 
 .toolbar-title svg {
-  color: #2563eb;
+  color: var(--theme-color);
   flex: 0 0 auto;
 }
 
@@ -368,7 +410,7 @@ h2 {
 }
 
 .search-box span {
-  color: #2563eb;
+  color: var(--theme-color);
   font-size: 0.8rem;
   font-weight: 850;
 }
@@ -389,6 +431,39 @@ h2 {
 .icon-button.subtle {
   min-height: 42px;
   width: 42px;
+}
+
+.export-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  z-index: 50;
+  gap: 2px;
+}
+
+.export-menu button {
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 650;
+  color: #334155;
+  transition: background 0.1s;
+}
+
+.export-menu button:hover {
+  background: #f1f5f9;
+  color: var(--theme-color);
 }
 
 .reader-body {
@@ -422,23 +497,11 @@ h2 {
 }
 
 .word-viewer-container {
-  padding: 40px 24px;
   background: #f0f2f5;
   min-height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  width: 100%;
 }
 
-.docx-viewer {
-  background: #ffffff !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
-  padding: 60px 48px !important;
-  max-width: 800px !important;
-  width: 100% !important;
-  min-height: 1056px;
-  margin-bottom: 40px;
-}
 
 .viewer-error {
   padding: 40px;
@@ -512,9 +575,9 @@ th, td {
 }
 
 th {
-  background-color: #f3f2f1;
-  color: #605e5c;
-  font-weight: normal;
+  background-color: var(--theme-header-bg, #f3f2f1);
+  color: var(--theme-header-color, #605e5c);
+  font-weight: 600;
   text-align: center;
   position: sticky;
   top: 0;
@@ -530,8 +593,9 @@ th.row-number-header {
 }
 
 td.row-number {
-  background-color: #f3f2f1;
-  color: #605e5c;
+  background-color: var(--theme-header-bg, #f3f2f1);
+  color: var(--theme-header-color, #605e5c);
+  font-weight: 600;
   text-align: center;
   position: sticky;
   left: 0;
