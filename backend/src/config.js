@@ -5,7 +5,7 @@ dotenv.config();
 export const config = {
   port: Number(process.env.PORT || 4000),
   nodeEnv: process.env.NODE_ENV || "development",
-  frontendOrigins: (process.env.FRONTEND_ORIGIN || "http://localhost:5173")
+  frontendOrigins: (process.env.FRONTEND_ORIGIN || `http://localhost:5173,${process.env.RENDER_EXTERNAL_URL || ""}`)
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean),
