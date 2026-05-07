@@ -155,8 +155,10 @@ export default function App() {
   }
 
   return (
-    <main className="site-shell">
-      <header className="app-header">
+    <main className={`site-shell ${hasResult ? "reading-mode" : ""}`}>
+      {!hasResult && (
+        <>
+          <header className="app-header">
         <div className="brand-block">
           <div className="brand-mark">
             <FileText size={22} aria-hidden="true" />
@@ -239,14 +241,17 @@ export default function App() {
           </div>
         </aside>
       </section>
+        </>
+      )}
 
-      {error && (
+      {error && !hasResult && (
         <div className="notice error" role="alert">
           <AlertCircle size={18} aria-hidden="true" />
           <span>{error}</span>
         </div>
       )}
 
+      {hasResult && (
       <section className="reader-shell">
         <div className="reader-toolbar">
           <div className="toolbar-title">
@@ -277,16 +282,17 @@ export default function App() {
               <Download size={17} aria-hidden="true" />
               Export
             </button>
-            <button className="icon-button subtle" type="button" onClick={resetReader} disabled={!hasResult} aria-label="Reset reader">
-              <RotateCcw size={17} aria-hidden="true" />
+            <button className="icon-button subtle" type="button" onClick={resetReader} aria-label="Close document">
+              <X size={17} aria-hidden="true" />
             </button>
           </div>
         </div>
 
         <div className="reader-body">
-          {isLoading ? <LoadingState /> : <Preview result={result} query={query} fileUrl={fileUrl} file={currentFile} />}
+          <Preview result={result} query={query} fileUrl={fileUrl} file={currentFile} />
         </div>
       </section>
+      )}
     </main>
   );
 }

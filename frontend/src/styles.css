@@ -40,6 +40,16 @@ input:disabled {
   padding: calc(14px + env(safe-area-inset-top)) 14px calc(22px + env(safe-area-inset-bottom));
 }
 
+.site-shell.reading-mode {
+  width: 100%;
+  max-width: none;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .app-header {
   display: flex;
   align-items: center;
@@ -298,6 +308,16 @@ h2 {
   overflow: hidden;
 }
 
+.reading-mode .reader-shell {
+  margin-top: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .reader-toolbar {
   align-items: stretch;
   flex-direction: column;
@@ -379,6 +399,12 @@ h2 {
   background: #fbfcfe;
   display: flex;
   flex-direction: column;
+}
+
+.reading-mode .reader-body {
+  flex: 1;
+  max-height: none;
+  height: auto;
 }
 
 .native-viewer {
