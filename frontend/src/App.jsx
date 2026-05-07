@@ -41,7 +41,7 @@ export default function App() {
   const [fileUrl, setFileUrl] = useState(null);
   const [currentFile, setCurrentFile] = useState(null);
   const [showExportMenu, setShowExportMenu] = useState(false);
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(typeof window !== "undefined" && window.innerWidth < 760 ? 0.45 : 1);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
   const inputRef = useRef(null);
 
@@ -124,6 +124,7 @@ export default function App() {
     setError("");
     setQuery("");
     setStatus("loading");
+    setZoom(window.innerWidth < 760 ? 0.45 : 1);
 
     try {
       const payload = await uploadFile(file);
@@ -212,7 +213,7 @@ export default function App() {
     setStatus("idle");
     setError("");
     setQuery("");
-    setZoom(1);
+    setZoom(window.innerWidth < 760 ? 0.45 : 1);
   }
 
   function handleDrop(event) {
@@ -407,7 +408,7 @@ export default function App() {
         </div>
 
         <div className="reader-body">
-          <div style={{ zoom: zoom, transformOrigin: "top left" }}>
+          <div style={{ zoom: (result?.mimeType === "application/pdf" || result?.mimeType?.startsWith("image/")) ? 1 : zoom, transformOrigin: "top left", width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
             <Preview result={result} query={query} fileUrl={fileUrl} file={currentFile} />
           </div>
         </div>
