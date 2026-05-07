@@ -20,7 +20,7 @@ import { uploadFile } from "./api.js";
 import { renderAsync } from "docx-preview";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const ACCEPTED_TYPES = ".pdf,.docx,.txt,.csv,.xls,.xlsx,.png,.jpg,.jpeg";
+const ACCEPTED_TYPES = ".pdf,.docx,.txt,.csv,.xls,.xlsx,.xlsm,.png,.jpg,.jpeg";
 const FORMAT_LABELS = ["PDF", "DOCX", "TXT", "CSV", "Excel", "JPG", "PNG"];
 
 export default function App() {
@@ -468,7 +468,7 @@ function getDocumentTitle(result) {
   const name = (result.fileName || "").toLowerCase();
   if (result.mimeType === "application/pdf" || name.endsWith(".pdf")) return "PDF Document";
   if (result.mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || name.endsWith(".docx")) return "Word Document";
-  if (result.mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || result.mimeType === "application/vnd.ms-excel" || name.match(/\.xlsx?$/)) return "Excel Spreadsheet";
+  if (result.mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || result.mimeType === "application/vnd.ms-excel" || result.mimeType === "application/vnd.ms-excel.sheet.macroEnabled.12" || name.match(/\.xlsx?$|\.xlsm$/)) return "Excel Spreadsheet";
   if (result.kind === "table") return "CSV Data";
   if (result.mimeType?.startsWith("image/") || name.match(/\.(png|jpe?g)$/)) return "Image Document";
   return "Text Document";

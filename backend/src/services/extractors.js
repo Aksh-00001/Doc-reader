@@ -10,6 +10,7 @@ export const supportedMimeTypes = new Set([
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   "application/vnd.ms-excel",
+  "application/vnd.ms-excel.sheet.macroEnabled.12",
   "text/plain",
   "text/csv",
   "application/csv",
@@ -120,8 +121,10 @@ function isExcelFile(mimeType, extension) {
   return (
     mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
     mimeType === "application/vnd.ms-excel" ||
+    mimeType === "application/vnd.ms-excel.sheet.macroEnabled.12" ||
     extension === ".xlsx" ||
-    extension === ".xls"
+    extension === ".xls" ||
+    extension === ".xlsm"
   );
 }
 
