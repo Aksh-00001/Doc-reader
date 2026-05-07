@@ -17,7 +17,15 @@ console.log(`[Production] Serving frontend from: ${frontendDist}`);
 const app = express();
 
 app.set("trust proxy", 1);
-app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+app.use(helmet({ 
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: false
+}));
+
+if (config.nodeEnv === "production") {
+  app.use(express.static(frontendDist));
+}
+
 app.use(
   cors({
     origin(origin, callback) {
@@ -48,7 +56,6 @@ app.get("/health", (_req, res) => {
 app.use("/", documentsRouter);
 
 if (config.nodeEnv === "production") {
-  app.use(express.static(frontendDist));
   app.get("*", (_req, res) => {
     res.sendFile(path.join(frontendDist, "index.html"));
   });
