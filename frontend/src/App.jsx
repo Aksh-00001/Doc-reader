@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
   AlertCircle,
   CheckCircle2,
@@ -157,6 +157,33 @@ export default function App() {
     };
   }, []);
 
+  const resetReader = useCallback(() => {
+    if (fileUrl) URL.revokeObjectURL(fileUrl);
+    setFileUrl(null);
+    setCurrentFile(null);
+    setResult(null);
+    setFileName("");
+    setStatus("idle");
+    setError("");
+    setQuery("");
+    setZoom(window.innerWidth < 760 ? 0.45 : 1);
+  }, [fileUrl]);
+
+  useEffect(() => {
+    // Android Hardware Back Button Listener
+    const backButtonListener = CapacitorApp.addListener("backButton", () => {
+      if (result || status !== "idle" || error) {
+        resetReader();
+      } else {
+        CapacitorApp.exitApp();
+      }
+    });
+
+    return () => {
+      backButtonListener.then((listener) => listener.remove());
+    };
+  }, [result, status, error, resetReader]);
+
   async function handleAndroidIntentUri(uri) {
     if (uri.startsWith("content://") || uri.startsWith("file://")) {
       try {
@@ -275,18 +302,6 @@ export default function App() {
     link.download = `${name}.${format}`;
     link.click();
     URL.revokeObjectURL(url);
-  }
-
-  function resetReader() {
-    if (fileUrl) URL.revokeObjectURL(fileUrl);
-    setFileUrl(null);
-    setCurrentFile(null);
-    setResult(null);
-    setFileName("");
-    setStatus("idle");
-    setError("");
-    setQuery("");
-    setZoom(window.innerWidth < 760 ? 0.45 : 1);
   }
 
   function handleDrop(event) {
