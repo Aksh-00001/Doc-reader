@@ -184,24 +184,48 @@ export default function App() {
     };
   }, [result, status, error, resetReader]);
 
+  function getMimeType(fileName) {
+    const ext = fileName.split('.').pop().toLowerCase();
+    const map = {
+      'pdf': 'application/pdf',
+      'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'txt': 'text/plain',
+      'csv': 'text/csv',
+      'xls': 'application/vnd.ms-excel',
+      'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'xlsm': 'application/vnd.ms-excel.sheet.macroEnabled.12',
+      'png': 'image/png',
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg'
+    };
+    return map[ext] || 'application/octet-stream';
+  }
+
   async function handleAndroidIntentUri(uri) {
     if (uri.startsWith("content://") || uri.startsWith("file://")) {
       try {
         setStatus("loading");
         const contents = await Filesystem.readFile({ path: uri });
         
-        const res = await fetch(`data:application/octet-stream;base64,${contents.data}`);
-        const blob = await res.blob();
-        
         let name = "Shared_Document";
         try {
            const statInfo = await Filesystem.stat({ path: uri });
            if (statInfo && statInfo.name) name = statInfo.name;
         } catch (e) {
-           // Ignore stat error
+           // Try extracting filename from the URI path itself
+           try {
+             const uriPath = decodeURIComponent(uri.split("?")[0]);
+             const segments = uriPath.split("/");
+             const lastSegment = segments[segments.length - 1];
+             if (lastSegment && lastSegment.includes(".")) name = lastSegment;
+           } catch (_) { /* ignore */ }
         }
         
-        const file = new File([blob], name, { type: blob.type });
+        const mimeType = getMimeType(name);
+        const res = await fetch(`data:${mimeType};base64,${contents.data}`);
+        const blob = await res.blob();
+        
+        const file = new File([blob], name, { type: mimeType });
         handleFile(file);
       } catch (error) {
         console.error("Error reading incoming intent file:", error);
