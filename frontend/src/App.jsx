@@ -8,6 +8,7 @@ import {
   Download,
   FileText,
   HardDrive,
+  Leaf,
   Loader2,
   MonitorSmartphone,
   RotateCcw,
@@ -334,224 +335,159 @@ export default function App() {
     handleFile(event.dataTransfer.files?.[0]);
   }
 
-  return (
-    <main className={`site-shell ${hasResult ? "reading-mode" : ""} ${getDocumentTheme(result)}`}>
-      {!hasResult && (
-        <>
-          <header className="app-header">
-        <div className="brand-block">
-          <div className="brand-mark">
-            <FileText size={22} aria-hidden="true" />
+  const themeClass = getDocumentTheme(result);
+
+  if (!hasResult) {
+    return (
+      <div className="min-h-screen flex flex-col" style={{ background: "var(--color-g-bg)", fontFamily: "var(--font-sans)" }}>
+        <header className="frosted organic-border fixed top-0 inset-x-0 z-50 h-16 flex items-center justify-between px-5"
+          style={{ borderTop: 0, borderLeft: 0, borderRight: 0 }}>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{ background: "var(--color-g-primary)", color: "#fff" }}>
+              <FileText size={18} />
+            </div>
+            <span className="text-xl font-bold italic" style={{ color: "var(--color-g-primary)" }}>Doc Reader</span>
           </div>
-          <div>
-            <p className="eyebrow">Local document reader</p>
-            <h1>Doc Reader</h1>
-          </div>
-        </div>
-
-        <div className="header-actions">
-          <span className={`status-pill ${online ? "online" : "offline"}`}>
-            {online ? <Wifi size={15} aria-hidden="true" /> : <WifiOff size={15} aria-hidden="true" />}
-            {online ? "Online" : "Offline"}
-          </span>
-          {installPrompt && (
-            <button className="ghost-button" type="button" onClick={handleInstall}>
-              <MonitorSmartphone size={17} aria-hidden="true" />
-              Install
-            </button>
-          )}
-        </div>
-      </header>
-
-      <section className="workspace">
-        <section
-          className={`upload-zone ${dragging ? "dragging" : ""}`}
-          onDragEnter={() => setDragging(true)}
-          onDragOver={(event) => event.preventDefault()}
-          onDragLeave={() => setDragging(false)}
-          onDrop={handleDrop}
-        >
-          <input
-            ref={inputRef}
-            type="file"
-            accept={ACCEPTED_TYPES}
-            onChange={(event) => handleFile(event.target.files?.[0])}
-            hidden
-          />
-
-          <div className="upload-art">
-            {isLoading ? <Loader2 className="spin" size={30} aria-hidden="true" /> : <UploadCloud size={30} aria-hidden="true" />}
-          </div>
-
-          <div className="upload-content">
-            <h2>{title}</h2>
-            <p>{summary}</p>
-          </div>
-
-          <button className="primary-button" type="button" onClick={() => inputRef.current?.click()} disabled={isLoading}>
-            {isLoading ? <Loader2 className="spin" size={18} aria-hidden="true" /> : <UploadCloud size={18} aria-hidden="true" />}
-            Choose file
-          </button>
-
-          <div className="format-row" aria-label="Supported formats">
-            {FORMAT_LABELS.map((format) => (
-              <span key={format}>{format}</span>
-            ))}
-          </div>
-        </section>
-
-        <aside className="document-panel">
-          <div className="panel-heading">
-            <h2>Document</h2>
-            {hasResult && (
-              <button className="icon-button" type="button" onClick={resetReader} aria-label="Clear document">
-                <X size={18} aria-hidden="true" />
+          <div className="flex items-center gap-2">
+            <span className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full organic-border"
+              style={{ color: online ? "#16805f" : "#b4233a", background: "var(--color-g-surface)" }}>
+              {online ? <Wifi size={13} /> : <WifiOff size={13} />}
+              {online ? "Online" : "Offline"}
+            </span>
+            {installPrompt && (
+              <button onClick={handleInstall}
+                className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full organic-border tactile-active"
+                style={{ background: "var(--color-g-surface)", color: "var(--color-g-primary)" }}>
+                <MonitorSmartphone size={13} /> Install
               </button>
             )}
           </div>
-
-          <div className="document-meta">
-            <MetaItem icon={<FileText size={18} />} label="File" value={fileName || "No file selected"} />
-            <MetaItem icon={<HardDrive size={18} />} label="Size" value={result ? formatBytes(result.size) : "Up to 10 MB"} />
-            <MetaItem
-              icon={result?.kind === "table" ? <Table2 size={18} /> : <CheckCircle2 size={18} />}
-              label="Content"
-              value={summary}
-            />
+        </header>
+        <main className="flex-1 pt-24 pb-10 px-5 max-w-lg mx-auto w-full">
+          <div className="text-center mb-8 mt-2">
+            <h2 className="text-2xl font-semibold flex items-center justify-center gap-2 mb-1" style={{ color: "var(--color-g-ink)" }}>
+              <Leaf size={22} style={{ color: "var(--color-g-primary)", opacity: 0.8 }} />
+              Ready to read.
+            </h2>
+            <p className="text-sm font-medium" style={{ color: "var(--color-g-outline)" }}>Upload a document to begin.</p>
           </div>
-        </aside>
-      </section>
-        </>
-      )}
-
-      {error && !hasResult && (
-        <div className="notice error" role="alert">
-          <AlertCircle size={18} aria-hidden="true" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {hasResult && (
-      <section className="reader-shell">
-        <div className="reader-toolbar">
-          <div className="toolbar-title">
-            {result?.kind === "table" ? <Table2 size={19} aria-hidden="true" /> : <FileText size={19} aria-hidden="true" />}
-            <div>
-              <h2>{getDocumentTitle(result)}</h2>
-              {result?.stats?.truncated && <p>Showing the first 1,000 rows</p>}
+          <section
+            className="ghibli-card-lg p-8 flex flex-col items-center text-center cursor-pointer transition-all mb-6"
+            style={{ borderStyle: "dashed", borderWidth: 2.5, borderColor: dragging ? "var(--color-g-primary)" : "var(--color-g-outline-light)", background: dragging ? "var(--color-g-primary-light)" : "var(--color-g-surface)" }}
+            onDragEnter={() => setDragging(true)}
+            onDragOver={(e) => e.preventDefault()}
+            onDragLeave={() => setDragging(false)}
+            onDrop={handleDrop}
+            onClick={() => inputRef.current?.click()}
+          >
+            <input ref={inputRef} type="file" accept={ACCEPTED_TYPES}
+              onChange={(e) => handleFile(e.target.files?.[0])} hidden />
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-5"
+              style={{ background: "var(--color-g-primary-light)", color: "var(--color-g-primary)" }}>
+              {isLoading ? <Loader2 size={36} className="spin" /> : <UploadCloud size={36} />}
             </div>
-          </div>
-
-          <div className="toolbar-actions">
-            <label className="search-box">
-              <Search size={17} aria-hidden="true" style={{ flexShrink: 0 }} />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && matches > 0) {
-                    e.preventDefault();
-                    setCurrentMatchIndex((prev) => (prev + 1) % matches);
-                  }
-                }}
-                placeholder="Search"
-                disabled={!hasResult}
-              />
-              {query && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '2px', borderLeft: '1px solid #d8dee8', paddingLeft: '8px' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, marginRight: '4px', whiteSpace: 'nowrap' }}>
-                    {matches > 0 ? currentMatchIndex + 1 : 0} / {matches}
-                  </span>
-                  <button 
-                    className="icon-button subtle" 
-                    type="button" 
-                    style={{ width: '24px', minHeight: '24px', padding: 0 }} 
-                    disabled={matches === 0} 
-                    onClick={() => setCurrentMatchIndex((prev) => (prev - 1 + matches) % matches)}
-                    aria-label="Previous match"
-                  >
-                    <ChevronUp size={16} />
-                  </button>
-                  <button 
-                    className="icon-button subtle" 
-                    type="button" 
-                    style={{ width: '24px', minHeight: '24px', padding: 0 }} 
-                    disabled={matches === 0} 
-                    onClick={() => setCurrentMatchIndex((prev) => (prev + 1) % matches)}
-                    aria-label="Next match"
-                  >
-                    <ChevronDown size={16} />
-                  </button>
-                </div>
-              )}
-            </label>
-
-            <div className="zoom-controls" style={{ display: "flex", gap: "2px", alignItems: "center", marginRight: "8px" }}>
-              <button className="icon-button subtle" type="button" onClick={() => setZoom(z => Math.max(0.25, z - 0.25))} aria-label="Zoom out" disabled={zoom <= 0.25}>
-                <ZoomOut size={17} aria-hidden="true" />
-              </button>
-              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#64748b", minWidth: "40px", textAlign: "center" }}>{Math.round(zoom * 100)}%</span>
-              <button className="icon-button subtle" type="button" onClick={() => setZoom(z => Math.min(3, z + 0.25))} aria-label="Zoom in" disabled={zoom >= 3}>
-                <ZoomIn size={17} aria-hidden="true" />
-              </button>
-            </div>
-
-            <button className="tool-button" type="button" onClick={handleCopy} disabled={!hasResult}>
-              <Clipboard size={17} aria-hidden="true" />
-              <span className="hide-on-mobile">Copy</span>
+            <h3 className="text-xl font-bold mb-1" style={{ color: "var(--color-g-primary)" }}>
+              {isLoading ? "Processing…" : "Tap or Drag & Drop"}
+            </h3>
+            <p className="text-sm mb-6" style={{ color: "var(--color-g-outline)" }}>
+              PDF, DOCX, XLSX, CSV, TXT, PNG, JPG
+            </p>
+            <button
+              className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm tactile-active"
+              style={{ background: "var(--color-g-primary)", color: "#fff", boxShadow: "var(--shadow-ghibli)" }}
+              type="button" disabled={isLoading}
+              onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}>
+              {isLoading ? <Loader2 size={16} className="spin" /> : <UploadCloud size={16} />}
+              Choose file
             </button>
-            <div className="export-container" style={{ position: "relative", display: "flex" }}>
-              <button className="tool-button" type="button" onClick={() => setShowExportMenu(!showExportMenu)} disabled={!hasResult}>
-                <Download size={17} aria-hidden="true" />
-                <span className="hide-on-mobile">Export</span>
-              </button>
-              {showExportMenu && (
-                <div className="export-menu">
-                  {result?.kind === "table" && <button onClick={() => exportAs("csv")}>Export to CSV</button>}
-                  <button onClick={() => exportAs("txt")}>Export to TXT</button>
-                  <button onClick={() => exportAs("pdf")}>Export to PDF</button>
-                </div>
-              )}
+          </section>
+          <div className="flex flex-wrap gap-2 justify-center mb-4">
+            {FORMAT_LABELS.map((f) => (
+              <span key={f} className="text-xs font-bold px-3 py-1.5 rounded-full"
+                style={{ background: "var(--color-g-primary-light)", color: "var(--color-g-primary)" }}>{f}</span>
+            ))}
+          </div>
+          {error && (
+            <div className="flex items-center gap-2 mt-4 px-4 py-3 rounded-xl text-sm font-semibold"
+              style={{ background: "#fff0f2", color: "#8b1e2d" }}>
+              <AlertCircle size={16} /> {error}
             </div>
-            <button className="icon-button subtle" type="button" onClick={resetReader} aria-label="Close document">
-              <X size={17} aria-hidden="true" />
-            </button>
-          </div>
-        </div>
-
-        <div className="reader-body">
-          <div style={{ zoom: (result?.mimeType === "application/pdf" || result?.mimeType?.startsWith("image/")) ? 1 : zoom, transformOrigin: "top left", width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
-            <Preview result={result} query={query} fileUrl={fileUrl} file={currentFile} />
-          </div>
-        </div>
-      </section>
-      )}
-    </main>
-  );
-}
-
-function MetaItem({ icon, label, value }) {
-  return (
-    <div className="meta-item">
-      <div className="meta-icon" aria-hidden="true">
-        {icon}
+          )}
+        </main>
       </div>
-      <div>
-        <span>{label}</span>
-        <strong>{value}</strong>
+    );
+  }
+
+  return (
+    <div className={`flex flex-col ${themeClass}`} style={{ height: "100dvh", background: "var(--color-g-bg)", fontFamily: "var(--font-sans)" }}>
+      <div className="frosted flex-shrink-0 z-40" style={{ borderBottom: "2px solid var(--color-g-outline-light)" }}>
+        <div className="flex items-center gap-2 px-3 pt-3 pb-1">
+          <button className="flex items-center justify-center w-8 h-8 rounded-xl tactile-active"
+            style={{ background: "var(--color-g-primary-light)", color: "var(--color-g-primary)" }}
+            onClick={resetReader} aria-label="Close">
+            <X size={16} />
+          </button>
+          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+            <span style={{ color: "var(--color-theme)" }}>{result?.kind === "table" ? <Table2 size={16} /> : <FileText size={16} />}</span>
+            <span className="font-bold text-sm truncate" style={{ color: "var(--color-g-ink)" }}>{getDocumentTitle(result)}</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 px-3 pb-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+          <label className="flex items-center gap-1.5 flex-1 min-w-0 px-2.5 rounded-xl h-8 organic-border"
+            style={{ background: "var(--color-g-surface-alt)", color: "var(--color-g-outline)", minWidth: 90 }}>
+            <Search size={13} style={{ flexShrink: 0 }} />
+            <input value={query} onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && matches > 0) { e.preventDefault(); setCurrentMatchIndex(p => (p + 1) % matches); } }}
+              placeholder="Search…" className="flex-1 min-w-0 bg-transparent outline-none text-xs font-medium"
+              style={{ color: "var(--color-g-ink)" }} />
+            {query && <span className="text-xs font-bold whitespace-nowrap" style={{ color: "var(--color-g-primary)" }}>{matches > 0 ? currentMatchIndex + 1 : 0}/{matches}</span>}
+          </label>
+          {query && (
+            <>
+              <button className="w-8 h-8 flex items-center justify-center rounded-xl organic-border tactile-active flex-shrink-0"
+                style={{ background: "var(--color-g-surface)", color: "var(--color-g-primary)" }}
+                disabled={matches === 0} onClick={() => setCurrentMatchIndex(p => (p - 1 + matches) % matches)}><ChevronUp size={15} /></button>
+              <button className="w-8 h-8 flex items-center justify-center rounded-xl organic-border tactile-active flex-shrink-0"
+                style={{ background: "var(--color-g-surface)", color: "var(--color-g-primary)" }}
+                disabled={matches === 0} onClick={() => setCurrentMatchIndex(p => (p + 1) % matches)}><ChevronDown size={15} /></button>
+            </>
+          )}
+          <button className="w-8 h-8 flex items-center justify-center rounded-xl organic-border tactile-active flex-shrink-0"
+            style={{ background: "var(--color-g-surface)", color: "var(--color-g-primary)" }}
+            disabled={zoom <= 0.25} onClick={() => setZoom(z => Math.max(0.25, z - 0.25))}><ZoomOut size={15} /></button>
+          <span className="text-xs font-bold flex-shrink-0" style={{ color: "var(--color-g-outline)", minWidth: 32, textAlign: "center" }}>{Math.round(zoom * 100)}%</span>
+          <button className="w-8 h-8 flex items-center justify-center rounded-xl organic-border tactile-active flex-shrink-0"
+            style={{ background: "var(--color-g-surface)", color: "var(--color-g-primary)" }}
+            disabled={zoom >= 3} onClick={() => setZoom(z => Math.min(3, z + 0.25))}><ZoomIn size={15} /></button>
+          <button className="w-8 h-8 flex items-center justify-center rounded-xl organic-border tactile-active flex-shrink-0"
+            style={{ background: "var(--color-g-surface)", color: "var(--color-g-primary)" }}
+            onClick={handleCopy}><Clipboard size={15} /></button>
+          <div className="relative flex-shrink-0">
+            <button className="w-8 h-8 flex items-center justify-center rounded-xl organic-border tactile-active"
+              style={{ background: "var(--color-g-surface)", color: "var(--color-g-primary)" }}
+              onClick={() => setShowExportMenu(v => !v)}><Download size={15} /></button>
+            {showExportMenu && (
+              <div className="absolute right-0 top-full mt-1 z-50 rounded-xl overflow-hidden"
+                style={{ background: "var(--color-g-surface)", border: "1.5px solid var(--color-g-outline-light)", boxShadow: "var(--shadow-ghibli-lg)", minWidth: 148 }}>
+                {result?.kind === "table" && <button className="w-full text-left px-4 py-2.5 text-sm font-medium" style={{ color: "var(--color-g-ink)" }} onClick={() => exportAs("csv")}>Export to CSV</button>}
+                <button className="w-full text-left px-4 py-2.5 text-sm font-medium" style={{ color: "var(--color-g-ink)" }} onClick={() => exportAs("txt")}>Export to TXT</button>
+                <button className="w-full text-left px-4 py-2.5 text-sm font-medium" style={{ color: "var(--color-g-ink)" }} onClick={() => exportAs("pdf")}>Export to PDF</button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="flex-1 overflow-auto" style={{ background: "#f5f3ef" }}>
+        <div style={{ zoom: (result?.mimeType === "application/pdf" || result?.mimeType?.startsWith("image/")) ? 1 : zoom, width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
+          <Preview result={result} query={query} fileUrl={fileUrl} file={currentFile} />
+        </div>
       </div>
     </div>
   );
 }
 
-function LoadingState() {
-  return (
-    <div className="loading-state">
-      <Loader2 className="spin" size={26} aria-hidden="true" />
-      <span>Processing document</span>
-    </div>
-  );
-}
+
 
 function Preview({ result, query, fileUrl, file }) {
   if (!result) {
@@ -563,13 +499,20 @@ function Preview({ result, query, fileUrl, file }) {
     );
   }
 
-  // Original high-fidelity viewer for PDF and Images
-  if (result.mimeType === "application/pdf" || result.mimeType.startsWith("image/")) {
+  // High-fidelity viewer for Images
+  if (result.mimeType.startsWith("image/")) {
     return (
-      <div className="native-viewer">
-        <object data={fileUrl} type={result.mimeType} width="100%" height="100%">
-          <embed src={fileUrl} type={result.mimeType} />
-        </object>
+      <div className="flex items-center justify-center min-h-full p-4">
+        <img src={fileUrl} alt={result.fileName} className="max-w-full h-auto rounded-lg shadow-sm" />
+      </div>
+    );
+  }
+
+  // High-fidelity viewer for PDF
+  if (result.mimeType === "application/pdf") {
+    return (
+      <div className="native-viewer flex-1 h-full">
+        <iframe src={`${fileUrl}#toolbar=0`} title="PDF Preview" className="w-full h-full border-none" />
       </div>
     );
   }
