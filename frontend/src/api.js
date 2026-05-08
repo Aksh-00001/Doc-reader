@@ -1,6 +1,11 @@
 const API_URL = import.meta.env.VITE_API_URL || getDefaultApiUrl();
 
 function getDefaultApiUrl() {
+  // Use the live backend when running natively on the Android phone
+  if (typeof window !== "undefined" && window.Capacitor && window.Capacitor.isNative) {
+    return "https://doc-reader-tfsq.onrender.com";
+  }
+
   if (!import.meta.env.DEV) return "";
   if (typeof window === "undefined") return "http://localhost:4000";
 
