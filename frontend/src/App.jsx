@@ -24,6 +24,8 @@ import { uploadFile } from "./api.js";
 import { renderAsync } from "docx-preview";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { App as CapacitorApp } from "@capacitor/app";
+import { Filesystem } from "@capacitor/filesystem";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ACCEPTED_TYPES = ".pdf,.docx,.txt,.csv,.xls,.xlsx,.xlsm,.png,.jpg,.jpeg";
@@ -134,6 +136,53 @@ export default function App() {
       });
     }
   }, []);
+
+  useEffect(() => {
+    // 1. Android Intent Listener (Warm Start)
+    const urlOpenListener = CapacitorApp.addListener("appUrlOpen", async (event) => {
+      handleAndroidIntentUri(event.url);
+    });
+
+    // 2. Android Intent Check (Cold Start)
+    const checkLaunch = async () => {
+      const launchUrl = await CapacitorApp.getLaunchUrl();
+      if (launchUrl && launchUrl.url) {
+        handleAndroidIntentUri(launchUrl.url);
+      }
+    };
+    checkLaunch();
+
+    return () => {
+      urlOpenListener.then((listener) => listener.remove());
+    };
+  }, []);
+
+  async function handleAndroidIntentUri(uri) {
+    if (uri.startsWith("content://") || uri.startsWith("file://")) {
+      try {
+        setStatus("loading");
+        const contents = await Filesystem.readFile({ path: uri });
+        
+        const res = await fetch(`data:application/octet-stream;base64,${contents.data}`);
+        const blob = await res.blob();
+        
+        let name = "Shared_Document";
+        try {
+           const statInfo = await Filesystem.stat({ path: uri });
+           if (statInfo && statInfo.name) name = statInfo.name;
+        } catch (e) {
+           // Ignore stat error
+        }
+        
+        const file = new File([blob], name, { type: blob.type });
+        handleFile(file);
+      } catch (error) {
+        console.error("Error reading incoming intent file:", error);
+        setError("Failed to open the document from external app.");
+        setStatus("idle");
+      }
+    }
+  }
 
   async function handleFile(file) {
     if (!file) return;
